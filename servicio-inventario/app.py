@@ -8,7 +8,7 @@ app_context = app.app_context()
 app_context.push()
 
 db.init_app(app)
-populate(number_of_products=5)
+populate(number_of_products=500)
 
 
 @app.route("/health", methods=["GET"])
