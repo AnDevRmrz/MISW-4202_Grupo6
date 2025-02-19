@@ -18,7 +18,7 @@ class Inventory(Base):
 
 
 def populate(number_of_products=10):
-    # Every time that the database is populated, we need to "restart" it
+    # Every time that the database is populated, we need to recreate the data
     db.drop_all()
     db.create_all()
 
