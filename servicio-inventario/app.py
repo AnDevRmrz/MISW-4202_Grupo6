@@ -10,6 +10,7 @@ app_context.push()
 db.init_app(app)
 populate(number_of_products=5)
 
+
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "ok"}), 200
@@ -25,8 +26,8 @@ def get_product_inventory(product_id: int):
 
     response = {
         "name": product.name,
-        "product_id": product.product_id, 
-        "inventory": product.quantity
+        "product_id": product.product_id,
+        "inventory": product.quantity,
     }
 
     return jsonify(response), 200
