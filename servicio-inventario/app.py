@@ -1,5 +1,5 @@
 from flask import Flask, jsonify
-from models import db
+from models import db, populate, Inventory
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///inventory.db"
@@ -8,7 +8,7 @@ app_context = app.app_context()
 app_context.push()
 
 db.init_app(app)
-db.create_all()
+populate(number_of_products=5)
 
 @app.route("/health", methods=["GET"])
 def health():
@@ -18,10 +18,15 @@ def health():
 @app.route("/product/<int:product_id>", methods=["GET"])
 def get_product_inventory(product_id: int):
     """Retrieve inventory for a specific product."""
-    product = db_session.query(Inventory).filter_by(product_id=product_id).first()
+    product = db.get_or_404(Inventory, product_id)
 
     if not product:
         return jsonify({"error": "Product not found"}), 404
 
-    response = {"product_id": product.product_id, "inventory": product.quantity}
+    response = {
+        "name": product.name,
+        "product_id": product.product_id, 
+        "inventory": product.quantity
+    }
+
     return jsonify(response), 200
