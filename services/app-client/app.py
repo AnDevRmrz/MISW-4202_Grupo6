@@ -17,8 +17,8 @@ headers = ["id", "start", "end", "delta", "status"]
 
 @app.get("/start")
 def start():
-    requests = int(os.environ.get("REQUESTS_TO_SEND", 5))
-    interval = int(os.environ.get("INTERVAL", 0.5))
+    requests = int(os.environ.get("REQUESTS_TO_SEND", 300))
+    interval = int(os.environ.get("INTERVAL", 0.3))
     data = {
         "message": "Starting Stress Test",
         "requests": requests,
@@ -57,7 +57,6 @@ def stress_test(requests, interval):
         time.sleep(interval)
 
     app.logger.info(f"Stress test completed with {requests} requests")
-    print(results)
     write_csv(results)
 
 

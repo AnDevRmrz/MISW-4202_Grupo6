@@ -36,8 +36,8 @@ def health():
     return jsonify({"status": "ok"}), 200
 
 
-@app.route("/product/<int:request_id>", methods=["GET"])
-def get_product_inventory(request_id: int):
+@app.route("/product/<request_id>", methods=["GET"])
+def get_product_inventory(request_id: str):
     """Retrieve inventory for a specific product."""
     start = datetime.now()
     random_number = random.randint(1, 100)
