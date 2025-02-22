@@ -4,7 +4,6 @@ import json
 from flask import Response
 from datetime import datetime
 import requests
-import random
 import time
 import uuid
 import logging
@@ -36,8 +35,7 @@ def start():
 
 def send_request(id):
     start = datetime.now()
-    product_id = random.randint(1, 10)
-    res = requests.get(f"http://api_gateway/inventory/product/{product_id}")
+    res = requests.get(f"http://api_gateway/inventory/product/{id}")
     end = datetime.now()
     delta = (end - start).microseconds
     return {
