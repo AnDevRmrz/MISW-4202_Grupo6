@@ -12,6 +12,8 @@ app_context.push()
 filename = "./responses.csv"
 headers = ["id", "start", "end", "delta", "status"]
 
+_is_initialized = False
+
 
 @app.before_request
 def init():
