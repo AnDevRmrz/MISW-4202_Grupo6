@@ -1,0 +1,29 @@
+services:
+  api_gateway:
+    container_name: api_gateway
+    image: nginx:latest
+    ports:
+      - 8080:80
+    networks:
+      - api
+      - external
+    volumes:
+      - ./gateway/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - inventory
+
+  inventory:
+    build:
+      context: ./services/servicio-inventario
+      dockerfile: ../Dockerfile
+    volumes:
+      - ./services/servicio-inventario/:/app
+    networks:
+      - api
+    deploy:
+      mode: replicated
+      replicas: 3
+
+networks:
+  api:
+  external:
