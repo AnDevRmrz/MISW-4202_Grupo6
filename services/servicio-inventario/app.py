@@ -1,14 +1,32 @@
+import csv
+import datetime
+import os
+import random
 from flask import Flask, jsonify
-from models import db, populate, Inventory
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///inventory.db"
 
 app_context = app.app_context()
 app_context.push()
 
-db.init_app(app)
-populate(number_of_products=500)
+filename = "./responses.csv"
+headers = ["id", "start", "end", "delta", "status"]
+
+
+@app.before_request
+def init():
+    global _is_initialized
+    if not _is_initialized:
+        try:
+            if os.path.exists(filename):
+                os.remove(filename)
+            with open(filename, "w", encoding="UTF8", newline="") as f:
+                writer = csv.DictWriter(f, fieldnames=headers)
+                writer.writeheader()
+        except Exception as e:
+            app.logger.error(f"Error during initialization: {e}")
+        finally:
+            _is_initialized = True
 
 
 @app.route("/health", methods=["GET"])
@@ -16,18 +34,47 @@ def health():
     return jsonify({"status": "ok"}), 200
 
 
-@app.route("/product/<int:product_id>", methods=["GET"])
-def get_product_inventory(product_id: int):
+@app.route("/product/<int:request_id>", methods=["GET"])
+def get_product_inventory(request_id: int):
     """Retrieve inventory for a specific product."""
-    product = db.get_or_404(Inventory, product_id)
+    start = datetime.now()
+    random_number = random.randint(1, 100)
 
-    if not product:
-        return jsonify({"error": "Product not found"}), 404
+    if random_number <= 25:
+        end = datetime.now()
+        save_result(
+            {
+                "id": request_id,
+                "start": start.isoformat(),
+                "end": end.isoformat(),
+                "delta": (end - start).microseconds,
+                "status": False,
+            }
+        )
+
+        return jsonify({"error": "Internal server error"}), 500
 
     response = {
-        "name": product.name,
-        "product_id": product.product_id,
-        "inventory": product.quantity,
+        "name": "Producto de prueba",
+        "product_id": "00112233",
+        "inventory": 969,
     }
 
+    end = datetime.now()
+    save_result(
+        {
+            "id": request_id,
+            "start": start.isoformat(),
+            "end": end.isoformat(),
+            "delta": (end - start).microseconds,
+            "status": True,
+        }
+    )
+
     return jsonify(response), 200
+
+
+def save_result(result):
+    with open(filename, "a", encoding="UTF8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=headers)
+        writer.writerow(result)
