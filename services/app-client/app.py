@@ -18,7 +18,7 @@ headers = ["id", "start", "end", "delta", "status"]
 @app.get("/start")
 def start():
     requests = int(os.environ.get("REQUESTS_TO_SEND", 300))
-    interval = int(os.environ.get("INTERVAL", 0.3))
+    interval = float(os.environ.get("INTERVAL", 0.3))
     data = {
         "message": "Starting Stress Test",
         "requests": requests,
