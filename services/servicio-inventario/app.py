@@ -1,5 +1,6 @@
 import csv
 from datetime import datetime
+import glob
 import os
 import random
 import socket
@@ -21,8 +22,12 @@ def init():
     global _is_initialized
     if not _is_initialized:
         try:
-            if os.path.exists(filename):
-                os.remove(filename)
+            # Find all CSV files in the directory
+            csv_files = glob.glob(os.path.join("./", "*.csv"))
+
+            # Delete each file
+            for file in csv_files:
+                os.remove(file)
             with open(filename, "w", encoding="UTF8", newline="") as f:
                 writer = csv.DictWriter(f, fieldnames=headers)
                 writer.writeheader()
