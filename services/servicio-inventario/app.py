@@ -1,23 +1,9 @@
 from datetime import datetime
-import glob
-import os
 import random
-import socket
+import requests
 from flask import Flask, jsonify
-from models import db, Response
 
 app = Flask(__name__)
-
-# Configure SQLite
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///responses.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# Initialize the database
-db.init_app(app)
-
-# Create tables within application context
-with app.app_context():
-    db.create_all()
 
 @app.route("/health", methods=["GET"])
 def health():
@@ -32,9 +18,10 @@ def get_product_inventory(request_id: str):
     if random_number <= 25:
         end = datetime.now()
         save_result({
-            "id": request_id,
-            "start": start,
-            "end": end,
+            "type": "response",
+            "request_id": request_id,
+            "start": start.isoformat(),
+            "end": end.isoformat(),
             "delta": (end - start).microseconds,
             "status": False,
         })
@@ -48,9 +35,10 @@ def get_product_inventory(request_id: str):
 
     end = datetime.now()
     save_result({
-        "id": request_id,
-        "start": start,
-        "end": end,
+        "type": "response",
+        "request_id": request_id,
+        "start": start.isoformat(),
+        "end": end.isoformat(),
         "delta": (end - start).microseconds,
         "status": True,
     })
@@ -58,17 +46,7 @@ def get_product_inventory(request_id: str):
     return jsonify(response), 200
 
 def save_result(result):
-    response = Response(
-        id=result['id'],
-        start=result['start'],
-        end=result['end'],
-        delta=result['delta'],
-        status=result['status']
-    )
-    
     try:
-        db.session.add(response)
-        db.session.commit()
+        requests.post("http://db_service:5000/insert", json=result)
     except Exception as e:
-        db.session.rollback()
-        app.logger.error(f"Error saving to database: {e}")
+        app.logger.error(f"Error sending to database: {e}")

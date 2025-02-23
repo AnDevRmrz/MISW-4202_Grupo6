@@ -7,13 +7,9 @@ import requests
 import time
 import uuid
 import logging
-import csv
 
 app = Flask(__name__)
-filename = './input.csv'
 app.logger.setLevel(logging.INFO)
-headers = ["id", "start", "end", "delta", "status"]
-
 
 @app.get("/start")
 def start():
@@ -39,6 +35,7 @@ def send_request(id):
     end = datetime.now()
     delta = (end - start).microseconds
     return {
+        "type": "request",
         "id": id,
         "start": start.isoformat(),
         "end": end.isoformat(),
@@ -46,23 +43,19 @@ def send_request(id):
         "status": res.ok
     }
 
-
 def stress_test(requests, interval):
-    results = {}
-
     for _ in range(requests):
-        id = uuid.uuid4()
+        id = str(uuid.uuid4())
         app.logger.info(f"Sending request {id}")
-        results[id] = send_request(id)
+        result = send_request(id)
+        save_result(result)
         time.sleep(interval)
 
     app.logger.info(f"Stress test completed with {requests} requests")
-    write_csv(results)
 
 
-def write_csv(results):
-    with open(filename, "w") as f:
-        writer = csv.DictWriter(f, fieldnames=headers)
-        writer.writeheader()
-        for result in results.values():
-            writer.writerow(result)
+def save_result(result):
+    try:
+        requests.post("http://db_service:5000/insert", json=result)
+    except Exception as e:
+        app.logger.error(f"Error sending to database: {e}")
