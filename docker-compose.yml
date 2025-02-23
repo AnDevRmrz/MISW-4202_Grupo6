@@ -36,6 +36,9 @@ services:
       - ./services/app-client/:/app
     networks:
       - external
+    environment:
+      - REQUESTS_TO_SEND=300
+      - INTERVAL=0.4
 
 networks:
   api:
