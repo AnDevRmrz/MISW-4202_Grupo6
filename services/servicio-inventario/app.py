@@ -12,25 +12,6 @@ app_context.push()
 filename = "./responses.csv"
 headers = ["id", "start", "end", "delta", "status"]
 
-_is_initialized = False
-
-
-@app.before_request
-def init():
-    global _is_initialized
-    if not _is_initialized:
-        try:
-            if os.path.exists(filename):
-                os.remove(filename)
-            with open(filename, "w", encoding="UTF8", newline="") as f:
-                writer = csv.DictWriter(f, fieldnames=headers)
-                writer.writeheader()
-        except Exception as e:
-            app.logger.error(f"Error during initialization: {e}")
-        finally:
-            _is_initialized = True
-
-
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "ok"}), 200
