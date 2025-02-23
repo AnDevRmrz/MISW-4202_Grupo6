@@ -2,14 +2,15 @@ import csv
 from datetime import datetime
 import os
 import random
+import socket
 from flask import Flask, jsonify
 
 app = Flask(__name__)
 
 app_context = app.app_context()
 app_context.push()
-
-filename = "./responses.csv"
+replica_id = socket.gethostname()
+filename = f"./responses_{replica_id}.csv"
 headers = ["id", "start", "end", "delta", "status"]
 
 _is_initialized = False
