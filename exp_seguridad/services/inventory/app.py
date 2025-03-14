@@ -31,27 +31,38 @@ def index():
         "timestamp": datetime.now().isoformat()
     }), 200
 
-@app.route('/product/<uuid:product_id>', methods=['POST, PUT'])
+@app.route('/product/<uuid:product_id>', methods=['POST', 'PUT'])
 def update_product(product_id):
     """
     Endpoint para actualizar un producto.
-    Simplemente registra la solicitud y devuelve 200.
+    Acepta el mismo formato que el validador: {"payload": {...}, "hash": "..."}
     """
     product_id_str = str(product_id)
     timestamp = datetime.now().isoformat()
     
     try:
-        # Extraemos los datos de la solicitud
-        data = request.form.to_dict()
+        # Extraemos los datos de la solicitud en formato JSON
+        request_data = request.get_json()
+        
+        # Verificamos que la solicitud tenga el formato correcto
+        if not request_data or "payload" not in request_data or "hash" not in request_data:
+            app.logger.error("Formato de solicitud incorrecto")
+            return jsonify({"error": "Formato de solicitud incorrecto. Se espera {\"payload\": {...}, \"hash\": \"...\"}"}), 400
+        
+        # Extraemos el payload (datos reales)
+        data = request_data["payload"]
+        received_hash = request_data["hash"]
         
         # Registramos la solicitud
         app.logger.info(f"Recibida solicitud para producto {product_id_str}")
+        app.logger.info(f"Hash recibido: {received_hash}")
         
         # Guardamos los detalles de la solicitud en el archivo de log
         log_entry = {
             "timestamp": timestamp,
             "product_id": product_id_str,
             "data": data,
+            "hash": received_hash,
             "remote_addr": request.remote_addr,
             "method": request.method,
             "path": request.path
