@@ -59,6 +59,8 @@ def send_request(id, valid_content):
         data_to_send["hash"] = hmac_to_send
     else:
         data_to_send["hash"] = fake.lexify(text='?'*64)
+    
+    app.logger.info(data_to_send)
 
     res = requests.put(f"http://api_gateway/inventory/product/{id}", data=data_to_send)
     end = datetime.now()
@@ -80,7 +82,7 @@ def stress_test(requests, interval):
     for _ in range(requests):
         id = uuid.uuid4()
         valid_content = random.randint(1, 10) <= 8
-        app.logger.info(f"Sending request {id}")
+        app.logger.info(f"Sending request {id} with valid content: {valid_content}")
         results[id] = send_request(id, valid_content)
         time.sleep(interval)
 
