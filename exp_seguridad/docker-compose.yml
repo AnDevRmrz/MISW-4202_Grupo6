@@ -54,7 +54,7 @@ services:
     environment:
       - FLASK_APP=app.py
       - FLASK_DEBUG=1
-      - REQUESTS_TO_SEND=5
+      - REQUESTS_TO_SEND=300
       - INTERVAL=0.3
       - SECRET_KEY=mykeyishiddensomewhereinthecloud
 
