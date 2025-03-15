@@ -11,8 +11,7 @@ services:
       - ./gateway/nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - inventory
-      - client
-      - validator
+      - app_client
 
   inventory:
     build:
@@ -22,9 +21,9 @@ services:
       - ./services/inventory/:/app
     networks:
       - api
-    environment:
-      - FLASK_APP=app.py
-      - FLASK_DEBUG=1
+    # deploy:
+    #   mode: replicated
+    #   replicas: 3
     depends_on:
       - validator
 
@@ -36,13 +35,9 @@ services:
       - ./services/validator/:/app
     networks:
       - api
-    environment:
-      - FLASK_APP=app.py
-      - FLASK_DEBUG=1
-      - SECRET_KEY=mykeyishiddensomewhereinthecloud
 
-  client:
-    container_name: client
+  app_client:
+    container_name: app_client
     build:
       context: ./services/client
       dockerfile: ../Dockerfile
@@ -51,16 +46,11 @@ services:
     volumes:
       - ./services/client/:/app
     networks:
-      - api
       - external
     environment:
-      - FLASK_APP=app.py
-      - FLASK_DEBUG=1
-      - REQUESTS_TO_SEND=5
-      - INTERVAL=0.3
-      - SECRET_KEY=mykeyishiddensomewhereinthecloud
+      - REQUESTS_TO_SEND=300
+      - INTERVAL=0.4
 
 networks:
   api:
-    internal: true
   external:
